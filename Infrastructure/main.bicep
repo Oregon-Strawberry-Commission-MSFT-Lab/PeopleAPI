@@ -35,7 +35,7 @@ param storageSKU string = 'Standard_LRS'
 param appServicePlanName string
 
 @description('The SKU of App Service Plan')
-param sku string = 'B1'
+param sku string = 'F1'
 
 @description('The name of function app')
 param functionAppName string = 'gsorservicebusfunctions'
