@@ -6,7 +6,7 @@ on:
       - "main" 
     paths:
       - "Infrastructure/**"
-      - ".github/workflows/bicep.yml"
+      - ".github/workflows/bicepTest.yml"
   workflow_dispatch:
 
 jobs:
