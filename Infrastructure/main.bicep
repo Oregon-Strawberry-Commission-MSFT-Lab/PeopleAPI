@@ -101,17 +101,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-// resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-//   name: appServicePlanName
-//   location: location
-//   sku: {
-//     name: sku
-//   }
-//   kind: 'linux'
-//   properties: {
-//     reserved: true
-//   }
-// }
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: appServicePlanName
+  location: location
+  sku: {
+    name: sku
+  }
+  kind: 'linux'
+  properties: {
+    reserved: true
+  }
+}
 
 // var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
 // var serviceBusConnectionString = listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
