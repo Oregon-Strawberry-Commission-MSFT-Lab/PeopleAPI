@@ -101,75 +101,75 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: appServicePlanName
-  location: location
-  sku: {
-    name: sku
-  }
-  kind: 'linux'
-  properties: {
-    reserved: true
-  }
-}
+// resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+//   name: appServicePlanName
+//   location: location
+//   sku: {
+//     name: sku
+//   }
+//   kind: 'linux'
+//   properties: {
+//     reserved: true
+//   }
+// }
 
-var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+// var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
 // var serviceBusConnectionString = listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
 
-resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: functionAppName
-  location: location
-  kind: 'functionapp,linux'
-  properties: {
-    reserved: true
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      linuxFxVersion: functionLinuxFxVersion
-      appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: storageAccountConnectionString
-        }
-        // {
-        //   name: 'ServiceBusConnection'
-        //   value: serviceBusConnectionString
-        // }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet'
-        }
-      ]
-    }
-  }
-}
+// resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+//   name: functionAppName
+//   location: location
+//   kind: 'functionapp,linux'
+//   properties: {
+//     reserved: true
+//     serverFarmId: appServicePlan.id
+//     siteConfig: {
+//       linuxFxVersion: functionLinuxFxVersion
+//       appSettings: [
+//         {
+//           name: 'AzureWebJobsStorage'
+//           value: storageAccountConnectionString
+//         }
+//         // {
+//         //   name: 'ServiceBusConnection'
+//         //   value: serviceBusConnectionString
+//         // }
+//         {
+//           name: 'FUNCTIONS_EXTENSION_VERSION'
+//           value: '~4'
+//         }
+//         {
+//           name: 'FUNCTIONS_WORKER_RUNTIME'
+//           value: 'dotnet'
+//         }
+//       ]
+//     }
+//   }
+// }
 
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: webAppName
-  location: location
-  kind: 'app,linux'
-  properties: {
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      linuxFxVersion: webLinuxFxVersion
-      ftpsState: 'FtpsOnly'
-      appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: storageAccountConnectionString
-        }
-        // {
-        //   name: 'ServiceBusConnection'
-        //   value: serviceBusConnectionString
-        // }
-      ]
-    }
-    httpsOnly: true
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
+// resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+//   name: webAppName
+//   location: location
+//   kind: 'app,linux'
+//   properties: {
+//     serverFarmId: appServicePlan.id
+//     siteConfig: {
+//       linuxFxVersion: webLinuxFxVersion
+//       ftpsState: 'FtpsOnly'
+//       appSettings: [
+//         {
+//           name: 'AzureWebJobsStorage'
+//           value: storageAccountConnectionString
+//         }
+//         // {
+//         //   name: 'ServiceBusConnection'
+//         //   value: serviceBusConnectionString
+//         // }
+//       ]
+//     }
+//     httpsOnly: true
+//   }
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+// }
