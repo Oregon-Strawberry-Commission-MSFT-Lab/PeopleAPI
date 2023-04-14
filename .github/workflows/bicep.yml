@@ -34,7 +34,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         scope: resourcegroup
-        template: ./Bicep/empty.bicep
+        template: ./Infrastructure/empty.bicep
         failOnStdErr: false
         deploymentName: empty-bicep-ci
         deploymentMode: Complete
@@ -45,7 +45,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         scope: resourcegroup
-        template: ./Bicep/main.bicep
+        template: ./Infrastructure/main.bicep
         parameters: serviceBusNamespaceName=${{ vars.RESOURCE_NAME }}sb storageAccountName=${{ vars.RESOURCE_NAME }}sa appServicePlanName=${{ vars.RESOURCE_NAME }}asp functionAppName=${{ vars.RESOURCE_NAME }}func webAppName=${{ vars.RESOURCE_NAME }}web
         failOnStdErr: false
         deploymentName: bicep-ci
