@@ -1,5 +1,5 @@
-@allowed([ 'centralus', 'eastus2', 'eastasia', 'westeurope', 'westus2' ])
-param location string = 'centralus'
+@allowed([ 'eastus2', 'eastasia', 'westeurope', 'westus2' ])
+param location string = 'eastus2'
 
 @description('Name of Static Web App')
 param staticWebAppName string = 'peopledemo9'
