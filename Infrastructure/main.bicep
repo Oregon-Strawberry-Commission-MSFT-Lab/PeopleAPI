@@ -9,11 +9,10 @@ param serviceBusSkuName string = 'Basic'
 
 @description('Name of Queues.')
 param serviceBusQueueNames array = [
-  'FromFunction'
-  'FromConsole'
+  'SearchDocument'
 ]
 
-var deadLetterFirehoseQueueName = 'deadletterfirehose'
+var deadLetterQueueName = 'deadletter'
 
 @minLength(3)
 @description('Name of the Storage Account')
@@ -50,44 +49,44 @@ param webAppName string
 @description('Required runtime stack of web app in the format of \'runtime|runtimeVersion\'')
 param webLinuxFxVersion string = 'DOTNETCORE|7.0'
 
-// resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
-//   name: serviceBusNamespaceName
-//   location: location
-//   sku: {
-//     name: serviceBusSkuName
-//   }
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
+  name: serviceBusNamespaceName
+  location: location
+  sku: {
+    name: serviceBusSkuName
+  }
 
-//   resource deadLetterFirehoseQueue 'queues@2018-01-01-preview' = {
-//     name: deadLetterFirehoseQueueName
-//     properties: {
-//       requiresDuplicateDetection: false
-//       requiresSession: false
-//       enablePartitioning: false
-//     }
-//   }
+  resource deadLetterQueue 'queues@2018-01-01-preview' = {
+    name: deadLetterQueueName
+    properties: {
+      requiresDuplicateDetection: false
+      requiresSession: false
+      enablePartitioning: false
+    }
+  }
 
-//   resource queues 'queues@2018-01-01-preview' = [for queueName in serviceBusQueueNames: {
-//     name: queueName
-//     dependsOn: [
-//       deadLetterFirehoseQueue
-//     ]
-//     properties: {
-//       forwardDeadLetteredMessagesTo: deadLetterFirehoseQueueName
-//       lockDuration: 'PT1M'
-//       maxSizeInMegabytes: 1024
-//       requiresDuplicateDetection: false
-//       requiresSession: false
-//       defaultMessageTimeToLive: 'P10D'
-//       deadLetteringOnMessageExpiration: true
-//       duplicateDetectionHistoryTimeWindow: 'PT10M'
-//       maxDeliveryCount: 10
-//       enablePartitioning: false
-//       enableExpress: false
-//       enableBatchedOperations: true
-//       status: 'Active'
-//     }
-//   }]
-// }
+  resource queues 'queues@2018-01-01-preview' = [for queueName in serviceBusQueueNames: {
+    name: queueName
+    dependsOn: [
+      deadLetterQueue
+    ]
+    properties: {
+      forwardDeadLetteredMessagesTo: deadLetterQueueName
+      lockDuration: 'PT1M'
+      maxSizeInMegabytes: 1024
+      requiresDuplicateDetection: false
+      requiresSession: false
+      defaultMessageTimeToLive: 'P10D'
+      deadLetteringOnMessageExpiration: true
+      duplicateDetectionHistoryTimeWindow: 'PT10M'
+      maxDeliveryCount: 10
+      enablePartitioning: false
+      enableExpress: false
+      enableBatchedOperations: true
+      status: 'Active'
+    }
+  }]
+}
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
@@ -113,63 +112,63 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-// var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
-// var serviceBusConnectionString = listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
+var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+var serviceBusConnectionString = listKeys('${serviceBusNamespace.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBusNamespace.apiVersion).primaryConnectionString
 
-// resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
-//   name: functionAppName
-//   location: location
-//   kind: 'functionapp,linux'
-//   properties: {
-//     reserved: true
-//     serverFarmId: appServicePlan.id
-//     siteConfig: {
-//       linuxFxVersion: functionLinuxFxVersion
-//       appSettings: [
-//         {
-//           name: 'AzureWebJobsStorage'
-//           value: storageAccountConnectionString
-//         }
-//         // {
-//         //   name: 'ServiceBusConnection'
-//         //   value: serviceBusConnectionString
-//         // }
-//         {
-//           name: 'FUNCTIONS_EXTENSION_VERSION'
-//           value: '~4'
-//         }
-//         {
-//           name: 'FUNCTIONS_WORKER_RUNTIME'
-//           value: 'dotnet'
-//         }
-//       ]
-//     }
-//   }
-// }
+resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: functionAppName
+  location: location
+  kind: 'functionapp,linux'
+  properties: {
+    reserved: true
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: functionLinuxFxVersion
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: storageAccountConnectionString
+        }
+        {
+          name: 'ServiceBusConnection'
+          value: serviceBusConnectionString
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
+        }
+      ]
+    }
+  }
+}
 
-// resource webApp 'Microsoft.Web/sites@2022-03-01' = {
-//   name: webAppName
-//   location: location
-//   kind: 'app,linux'
-//   properties: {
-//     serverFarmId: appServicePlan.id
-//     siteConfig: {
-//       linuxFxVersion: webLinuxFxVersion
-//       ftpsState: 'FtpsOnly'
-//       appSettings: [
-//         {
-//           name: 'AzureWebJobsStorage'
-//           value: storageAccountConnectionString
-//         }
-//         // {
-//         //   name: 'ServiceBusConnection'
-//         //   value: serviceBusConnectionString
-//         // }
-//       ]
-//     }
-//     httpsOnly: true
-//   }
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-// }
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: webAppName
+  location: location
+  kind: 'app,linux'
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: webLinuxFxVersion
+      ftpsState: 'FtpsOnly'
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: storageAccountConnectionString
+        }
+        {
+          name: 'ServiceBusConnection'
+          value: serviceBusConnectionString
+        }
+      ]
+    }
+    httpsOnly: true
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
